@@ -1,0 +1,7 @@
+__pycache__
+dist/
+.venv/
+coverage.xml
+.coverage
+setup.cfg
+tests/hexlet test/
