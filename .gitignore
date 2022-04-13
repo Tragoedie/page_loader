@@ -4,3 +4,4 @@ dist/
 coverage.xml
 .coverage
 tests/hexlet test/
+page_loader/dir_for_load/
