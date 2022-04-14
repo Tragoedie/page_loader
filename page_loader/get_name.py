@@ -1,24 +1,22 @@
 """Get name."""
-import os
-from typing import Union
+
+import pathlib
+import re
+from urllib.parse import urlparse
 
 
-def get_name(common_path: str) -> [Union[str], str]:
+def get_name(common_path: str) -> str:
     """Get new formatted name.
 
     Args:
         common_path: path for file or url.
 
     Returns:
-        tuple: (file name, file extension).
+        str: string.
     """
-    index_for_schema = common_path.find('/') + 2
-    url_without_schema = common_path[index_for_schema:]
-    body, file_extension = os.path.splitext(url_without_schema)
-    for char in body:
-        if not char.isalnum():
-            body = body.replace(char, '-')
-    return [body, file_extension]
+    prefix = urlparse(common_path).scheme
+    body = re.sub(r'^{0}://'.format(prefix), '', common_path)
+    return re.sub(r'[^a-zA-Z\d]', '-', body)
 
 
 def get_html_name(url: str) -> str:
@@ -30,7 +28,7 @@ def get_html_name(url: str) -> str:
     Returns:
         str: html file name.
     """
-    return '{0}.html'.format(get_name(url)[0])
+    return '{0}.html'.format(get_name(url))
 
 
 def get_folder_name(url: str) -> str:
@@ -42,7 +40,7 @@ def get_folder_name(url: str) -> str:
     Returns:
         str: file folder name.
     """
-    return '{0}_files'.format(get_name(url)[0])
+    return '{0}_files'.format(get_name(url))
 
 
 def get_local_file_path(url: str, src: str) -> str:
@@ -55,7 +53,14 @@ def get_local_file_path(url: str, src: str) -> str:
     Returns:
         str: file name with local path.
     """
-    file_name = get_name(src)
-    if file_name[1] == '':
-        file_name[1] = '.html'
-    return '{0}/{1}{2}'.format(get_folder_name(url), file_name[0], file_name[1])
+    if not urlparse(src).netloc:
+        src = '{0}{1}'.format(urlparse(url).netloc, src)
+    file_extension = pathlib.Path(src).suffix
+    if not file_extension:
+        file_extension = '.html'
+    body = re.sub(r'{0}$'.format(file_extension), '', src)
+    return '{0}/{1}{2}'.format(
+        get_folder_name(url),
+        get_name(body),
+        file_extension,
+    )

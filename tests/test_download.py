@@ -26,19 +26,6 @@ def test_download_html():
                 assert content == before_replace_links
 
 
-def test_download_file():
-    with tempfile.TemporaryDirectory() as temp_dir:
-        with requests_mock.Mocker() as mock_request:
-            mock_request.get(IMG_URL, content=image_content, headers={'content-type': 'png'})
-            img_filepath = os.path.join(temp_dir, 'ru-hexlet-io-assets-professions-nodejs.png')
-            download_local_files([(IMG_URL, img_filepath, 'img')], temp_dir)
-            assert os.path.exists(img_filepath)
-            assert os.path.isfile(img_filepath)
-            with open(img_filepath, 'rb') as img_file:
-                img_result = img_file.read()
-            assert img_result == image_content
-
-
 def test_download():
     with tempfile.TemporaryDirectory() as temp_dir:
         with requests_mock.Mocker() as mock_request:
@@ -46,9 +33,15 @@ def test_download():
             mock_request.get(IMG_URL, content=image_content, headers={'content-type': 'png'})
             html_file_path = download(URL, temp_dir)
             assert html_file_path == temp_dir + '/ru-hexlet-io-courses.html'
+            img_filepath = os.path.join(temp_dir, 'ru-hexlet-io-courses_files/ru-hexlet-io-assets-professions-nodejs.png')
+            with open(img_filepath, 'rb') as img_file:
+                img_result = img_file.read()
+            assert img_result == image_content
             with open(html_file_path, 'r') as html:
                 content = html.read()
             assert content == after_replace_links
+            assert os.path.exists(html_file_path)
+            assert os.path.isfile(html_file_path)
 
 
 def test_name():

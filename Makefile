@@ -17,7 +17,7 @@ page-loader:
 	poetry run page-loader
 
 test:
-	poetry run pytest --cov=page_loader --cov-report xml tests/
+	poetry run pytest --cov=page_loader --cov-report xml tests/ -vv
 
 test-cov:
 	poetry run coverage xml

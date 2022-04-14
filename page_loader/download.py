@@ -7,7 +7,7 @@ from logging import config
 
 import requests
 from page_loader.get_name import get_folder_name, get_html_name
-from page_loader.html_parser import IMG, replace_links
+from page_loader.html_parser import replace_links
 from page_loader.logging_settings import LOGGING_CONFIG
 from progress.bar import ChargingBar
 
@@ -15,7 +15,7 @@ config.dictConfig(LOGGING_CONFIG)
 log = logging.getLogger('page_loader')
 
 
-BYTES_FOR_BLOCK = 4096
+BYTES_FOR_BLOCK = 1024
 DEFAULT_PATH = os.getcwd()
 
 
@@ -131,15 +131,11 @@ def download_local_files(urls, files_folder) -> None:
                     requests.get(url).status_code,
                 ),
             )
-        file_folder = os.path.join(files_folder, url[1])
+        file_name = os.path.join(files_folder, url[1])
         try:
-            if url[2] is IMG:
-                with open(file_folder, 'wb') as img_file_save:
-                    for chunk in local_file.iter_content(BYTES_FOR_BLOCK):
-                        img_file_save.write(chunk)
-            else:
-                with open(file_folder, 'w') as other_file_save:
-                    other_file_save.write(local_file.text)
+            with open(file_name, 'wb') as img_file_save:
+                for chunk in local_file.iter_content(BYTES_FOR_BLOCK):
+                    img_file_save.write(chunk)
         except OSError as err:
             raise ExpectedError(
                 'Something gone wrong:{0}, file not saved.'.format(str(err)),
