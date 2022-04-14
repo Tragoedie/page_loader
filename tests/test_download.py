@@ -54,4 +54,4 @@ def test_download():
 def test_name():
     assert get_html_name(URL) == 'ru-hexlet-io-courses.html'
     assert get_folder_name(URL) == 'ru-hexlet-io-courses_files'
-    assert get_local_file_path(URL, 'http://file_name') == 'ru-hexlet-io-courses_files/file-name'
+    assert get_local_file_path(URL, 'http://file_name') == 'ru-hexlet-io-courses_files/file-name.html'

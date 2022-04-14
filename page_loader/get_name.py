@@ -1,9 +1,9 @@
 """Get name."""
 import os
-from typing import Tuple, Union
+from typing import Union
 
 
-def get_name(common_path: str) -> Tuple[Union[str], str]:
+def get_name(common_path: str) -> [Union[str], str]:
     """Get new formatted name.
 
     Args:
@@ -18,7 +18,7 @@ def get_name(common_path: str) -> Tuple[Union[str], str]:
     for char in body:
         if not char.isalnum():
             body = body.replace(char, '-')
-    return body, file_extension
+    return [body, file_extension]
 
 
 def get_html_name(url: str) -> str:
@@ -56,4 +56,6 @@ def get_local_file_path(url: str, src: str) -> str:
         str: file name with local path.
     """
     file_name = get_name(src)
+    if file_name[1] == '':
+        file_name[1] = '.html'
     return '{0}/{1}{2}'.format(get_folder_name(url), file_name[0], file_name[1])
