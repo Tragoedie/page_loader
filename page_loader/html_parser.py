@@ -50,7 +50,7 @@ def replace_links(html_path: str, url: str) -> List[tuple]:
         if tag_path is None or is_local_file(tag_path, url) is False:
             continue
         src_parse = urlparse(tag_path)
-        if src_parse.netloc == '':
+        if not src_parse.netloc:
             url_parse = urlparse(url)
             tag_path = '{0}://{1}{2}'.format(
                 url_parse.scheme,
@@ -60,6 +60,6 @@ def replace_links(html_path: str, url: str) -> List[tuple]:
         path_for_replace = get_local_file_path(url, tag_path)
         tag[DICT_FOR_LINK[tag.name]] = path_for_replace
         urls.append((tag_path, path_for_replace, tag.name))
-        with open(html_path, 'w') as new_html:
-            new_html.write(soup.prettify())
+    with open(html_path, 'w') as new_html:
+        new_html.write(soup.prettify())
     return urls
