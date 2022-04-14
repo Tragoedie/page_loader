@@ -1,6 +1,7 @@
 """Download html web page."""
 import logging
 import os
+import shutil
 from logging import config
 
 import requests
@@ -79,6 +80,7 @@ def download_html(url: str, directory: str) -> str:
         response = requests.get(url)
         response.raise_for_status()
     except requests.exceptions.RequestException:
+        shutil.rmtree(os.path.join(directory, get_folder_name(url)))
         raise ExpectedError(
             'Network error when downloading {0}. Status code is {1}'.format(
                 url,
