@@ -1,9 +1,10 @@
 """Download html web page."""
 import os
-from progress.bar import ChargingBar
+
 import requests
 from page_loader.get_name import get_folder_name, get_html_name
 from page_loader.html_parser import IMG, replace_links
+from progress.bar import ChargingBar
 
 BYTES_FOR_BLOCK = 4096
 
@@ -51,7 +52,7 @@ def download_local_files(urls, files_folder) -> None:
         urls: array of links to download files.
         files_folder: directory where to download local files.
     """
-    bar = ChargingBar('Loading...', max=len(urls))
+    charging_bar = ChargingBar('Loading...', max=len(urls))
     for url in urls:
         local_file = requests.get(url[0], stream=True)
         file_folder = os.path.join(files_folder, url[1])
@@ -62,5 +63,5 @@ def download_local_files(urls, files_folder) -> None:
         else:
             with open(file_folder, 'w') as other_file_save:
                 other_file_save.write(local_file.text)
-        bar.next()
-    bar.finish()
+        charging_bar.next()
+    charging_bar.finish()
