@@ -11,11 +11,18 @@ TEST_URL = 'https://ru.hexlet.io/les'
 
 
 def test_html_download_error_404():
-    with tempfile.TemporaryDirectory() as temp_dir:
-        with requests_mock.Mocker() as mock_request:
-            mock_request.get(TEST_URL, status_code=ERROR_CODE)
-            with pytest.raises(ExpectedError):
+    with pytest.raises(ExpectedError):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with requests_mock.Mocker() as mock_request:
+                mock_request.get(TEST_URL, status_code=ERROR_CODE)
                 download(TEST_URL, temp_dir)
+
+
+def test_403_error():
+    with pytest.raises(ExpectedError) as err_info:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            download(TEST_URL, temp_dir)
+        assert '403 Client Error: Forbidden for url' in str(err_info.value)
 
 
 def test_download_wrong_path():

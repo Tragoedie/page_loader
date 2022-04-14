@@ -76,13 +76,9 @@ def download_html(url: str, directory: str) -> str:
         ExpectedError: permission or not found errors in file.
     """
     try:
-        response = requests.get(url).text
-    except (
-        requests.exceptions.HTTPError,
-        requests.exceptions.ConnectionError,
-        requests.exceptions.MissingSchema,
-    ) as error:
-        log.warning(error)
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.RequestException:
         raise ExpectedError(
             'Network error when downloading {0}. Status code is {1}'.format(
                 url,
@@ -93,7 +89,7 @@ def download_html(url: str, directory: str) -> str:
     download_path_name = os.path.join(directory, file_name)
     try:
         with open(download_path_name, 'w') as html_file:
-            html_file.write(response)
+            html_file.write(response.text)
     except OSError as err:
         raise ExpectedError(
             'Something gone wrong:{0}, file not saved.'.format(str(err)),
