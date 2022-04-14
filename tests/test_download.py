@@ -1,5 +1,4 @@
-import pytest
-from page_loader.download_function import download_html, download_local_files, download
+from page_loader.download import download_html, download_local_files, download
 from page_loader.get_name import get_folder_name, get_html_name, get_local_file_path
 import requests_mock
 import tempfile

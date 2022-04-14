@@ -1,5 +1,4 @@
 """Download html web page."""
-
 import logging
 import os
 from logging import config
