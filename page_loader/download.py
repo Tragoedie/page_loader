@@ -1,6 +1,7 @@
 """Download html web page."""
 import logging
 import os
+import pathlib
 import shutil
 from logging import config
 
@@ -15,6 +16,7 @@ log = logging.getLogger('page_loader')
 
 
 BYTES_FOR_BLOCK = 4096
+DEFAULT_PATH = os.getcwd()
 
 
 class ExpectedError(Exception):
@@ -40,19 +42,20 @@ def download(url: str, directory: str) -> str:
     files_folder = os.path.join(directory, get_folder_name(url))
     try:
         log.info('Create folder: {0}'.format(files_folder))
-        os.makedirs(files_folder, exist_ok=True)
-    except PermissionError:
-        raise ExpectedError(
-            'You have not access to directory: {0}'.format(
-                directory,
-            ),
-        )
+        pathlib.Path(files_folder).mkdir(exist_ok=True)
     except FileNotFoundError:
         raise ExpectedError(
             'Choose a valid directory path, please: {0}'.format(
                 directory,
             ),
         )
+    except PermissionError:
+        raise ExpectedError(
+            'You have not access to directory: {0}'.format(
+                directory,
+            ),
+        )
+
     except OSError as error:
         raise ExpectedError('Unknown {0} error'.format(str(error)))
     download_path = download_html(url, directory)

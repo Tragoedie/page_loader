@@ -1,11 +1,10 @@
 """Download html file with local resources."""
 import argparse
 import logging
-import os
 import sys
 from logging import config
 
-from page_loader.download import ExpectedError, download
+from page_loader.download import DEFAULT_PATH, ExpectedError, download
 from page_loader.logging_settings import LOGGING_CONFIG
 
 config.dictConfig(LOGGING_CONFIG)
@@ -20,7 +19,7 @@ def main() -> None:
         '-o',
         '--output',
         type=str,
-        default=os.getcwd(),
+        default=DEFAULT_PATH,
         help='select folder to download the html page',
     )
     args = parser.parse_args()
