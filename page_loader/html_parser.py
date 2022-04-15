@@ -59,7 +59,7 @@ def replace_links(html_path: str, url: str) -> List[tuple]:
             )
         path_for_replace = get_local_file_path(url, tag_path)
         tag[DICT_FOR_LINK[tag.name]] = path_for_replace
-        urls.append((tag_path, path_for_replace, tag.name))
+        urls.append((tag_path, path_for_replace))
     with open(html_path, 'w') as new_html:
         new_html.write(soup.prettify())
     return urls
