@@ -2,6 +2,7 @@
 import logging
 import os
 import pathlib
+import shutil
 from logging import config
 from typing import Any
 
@@ -59,7 +60,7 @@ def download(url: str, directory: str = DEFAULT_PATH) -> str:
     path_html = os.path.join(directory, get_html_name(url))
     log.info('Downloading from {0} to {1}'.format(url, path_html))
     url_for_download, html = prepare_links(get_response(url).text, url)
-    save_html(path_html, html)
+    save_html(path_html, html, path_local_folder)
     download_local_files(url_for_download, directory)
     log.info('Done!')
     return path_html
@@ -132,12 +133,13 @@ def get_response(url: str) -> Any:
         )
 
 
-def save_html(path_to_html: str, data_html: Any):
+def save_html(path_to_html: str, data_html: Any, path_to_del: str):
     """Save web page.
 
     Args:
         path_to_html: path to save html
         data_html: text of the web page.
+        path_to_del: if need deleted folder.
 
     Raises:
         ExpectedError: permission or not found errors in file.
@@ -147,6 +149,7 @@ def save_html(path_to_html: str, data_html: Any):
             log.info('Save to the {0}'.format(path_to_html))
             html_file.write(data_html)
     except OSError as err:
+        shutil.rmtree(path_to_del)
         raise ExpectedError(
             'Something gone wrong:{0}, file not saved.'.format(str(err)),
         )
