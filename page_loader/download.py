@@ -44,6 +44,7 @@ def download(url: str, directory: str = DEFAULT_PATH) -> str:
         log.info('Create folder: {0}'.format(path_local_folder))
         pathlib.Path(path_local_folder).mkdir(exist_ok=True)
     except FileNotFoundError:
+        shutil.rmtree(path_local_folder)
         raise ExpectedError(
             'Choose a valid directory path, please: {0}'.format(
                 directory,
@@ -60,7 +61,7 @@ def download(url: str, directory: str = DEFAULT_PATH) -> str:
     path_html = os.path.join(directory, get_html_name(url))
     log.info('Downloading from {0} to {1}'.format(url, path_html))
     url_for_download, html = prepare_links(get_response(url).text, url)
-    save_html(path_html, html, directory)
+    save_html(path_html, html, path_local_folder)
     download_local_files(url_for_download, directory)
     log.info('Done!')
     return path_html
