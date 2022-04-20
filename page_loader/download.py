@@ -44,7 +44,6 @@ def download(url: str, directory: str = DEFAULT_PATH) -> str:
         log.info('Create folder: {0}'.format(path_local_folder))
         pathlib.Path(path_local_folder).mkdir(exist_ok=True)
     except FileNotFoundError:
-        shutil.rmtree(os.path.join(directory, get_folder_name(url)))
         raise ExpectedError(
             'Choose a valid directory path, please: {0}'.format(
                 directory,
@@ -60,7 +59,7 @@ def download(url: str, directory: str = DEFAULT_PATH) -> str:
         raise ExpectedError('Unknown {0} error'.format(str(error)))
     path_html = os.path.join(directory, get_html_name(url))
     log.info('Downloading from {0} to {1}'.format(url, path_html))
-    url_for_download, html = prepare_links(get_response(url).text, url)
+    url_for_download, html = prepare_links(get_response(url, directory).text, url)
     save_html(path_html, html, path_local_folder)
     download_local_files(url_for_download, directory)
     log.info('Done!')
@@ -109,7 +108,7 @@ def download_local_files(urls, files_folder) -> None:
     charging_bar.finish()
 
 
-def get_response(url: str) -> Any:
+def get_response(url: str, directory) -> Any:
     """Download data of web page.
 
     Args:
@@ -126,6 +125,7 @@ def get_response(url: str) -> Any:
         response.raise_for_status()
         return response
     except requests.exceptions.RequestException:
+        shutil.rmtree(os.path.join(directory, get_folder_name(url)))
         raise ExpectedError(
             'Network error when downloading {0}. Status code is {1}'.format(
                 url,
@@ -134,7 +134,7 @@ def get_response(url: str) -> Any:
         )
 
 
-def save_html(path_to_html: str, data_html: Any, path_to_del: str):
+def save_html(path_to_html: str, data_html: Any, path_to_del: str) -> None:
     """Save web page.
 
     Args:
