@@ -60,7 +60,7 @@ def download(url: str, directory: str = DEFAULT_PATH) -> str:
     path_html = os.path.join(directory, get_html_name(url))
     log.info('Downloading from {0} to {1}'.format(url, path_html))
     url_for_download, html = prepare_links(get_response(url).text, url)
-    save_html(path_html, html, path_local_folder)
+    save_html(path_html, html, directory)
     download_local_files(url_for_download, directory)
     log.info('Done!')
     return path_html
