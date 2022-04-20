@@ -1,6 +1,6 @@
 """Replace links."""
 
-from typing import List
+from typing import Any, List, Tuple
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
@@ -12,7 +12,7 @@ LINK = 'link'
 HREF = 'href'
 SCRIPT = 'script'
 
-DICT_FOR_LINK = {IMG: SRC, SCRIPT: SRC, LINK: HREF}
+LINKS = {IMG: SRC, SCRIPT: SRC, LINK: HREF}
 
 
 def is_local_file(src: str, url: str) -> bool:
@@ -29,11 +29,11 @@ def is_local_file(src: str, url: str) -> bool:
     return urlparse(src).netloc in domain
 
 
-def replace_links(html_path: str, url: str) -> List[tuple]:
+def prepare_links(html_response: Any, url: str) -> Tuple[List[tuple], Any]:
     """Replace links in downloaded html page from web links to local files.
 
     Args:
-        html_path: place, where the downloaded html file is located.
+        html_response: place, where the downloaded html file is located.
         url: url of the web page.
 
     Returns:
@@ -42,11 +42,10 @@ def replace_links(html_path: str, url: str) -> List[tuple]:
         2) path_for_replace - local path for downloaded file,
         2) tag.name - name of tag.
     """
-    with open(html_path) as html_file:
-        soup = BeautifulSoup(html_file, 'html.parser')
+    soup = BeautifulSoup(html_response, 'html.parser')
     urls = []
-    for tag in soup.find_all(DICT_FOR_LINK.keys()):
-        tag_path = tag.get(DICT_FOR_LINK[tag.name])
+    for tag in soup.find_all(LINKS.keys()):
+        tag_path = tag.get(LINKS[tag.name])
         if tag_path is None or is_local_file(tag_path, url) is False:
             continue
         src_parse = urlparse(tag_path)
@@ -58,8 +57,6 @@ def replace_links(html_path: str, url: str) -> List[tuple]:
                 tag_path,
             )
         path_for_replace = get_local_file_path(url, tag_path)
-        tag[DICT_FOR_LINK[tag.name]] = path_for_replace
+        tag[LINKS[tag.name]] = path_for_replace
         urls.append((tag_path, path_for_replace))
-    with open(html_path, 'w') as new_html:
-        new_html.write(soup.prettify())
-    return urls
+    return urls, soup.prettify()

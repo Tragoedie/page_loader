@@ -5,7 +5,7 @@ import sys
 from logging import config
 
 from page_loader.download import DEFAULT_PATH, ExpectedError, download
-from page_loader.logging_settings import LOGGING_CONFIG
+from page_loader.logging import LOGGING_CONFIG
 
 config.dictConfig(LOGGING_CONFIG)
 log = logging.getLogger('page_loader')

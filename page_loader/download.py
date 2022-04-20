@@ -2,18 +2,17 @@
 import logging
 import os
 import pathlib
-import shutil
 from logging import config
+from typing import Any
 
 import requests
 from page_loader.get_name import get_folder_name, get_html_name
-from page_loader.html_parser import replace_links
-from page_loader.logging_settings import LOGGING_CONFIG
+from page_loader.html import prepare_links
+from page_loader.logging import LOGGING_CONFIG
 from progress.bar import ChargingBar
 
 config.dictConfig(LOGGING_CONFIG)
 log = logging.getLogger('page_loader')
-
 
 BYTES_FOR_BLOCK = 1024
 DEFAULT_PATH = os.getcwd()
@@ -25,7 +24,7 @@ class ExpectedError(Exception):
     pass
 
 
-def download(url: str, directory: str) -> str:
+def download(url: str, directory: str = DEFAULT_PATH) -> str:
     """Download html web page and files on it.
 
     Args:
@@ -39,10 +38,10 @@ def download(url: str, directory: str) -> str:
         ExpectedError: permission or not found errors in file.
     """
     log.info('Start downloading!')
-    files_folder = os.path.join(directory, get_folder_name(url))
+    path_local_folder = os.path.join(directory, get_folder_name(url))
     try:
-        log.info('Create folder: {0}'.format(files_folder))
-        pathlib.Path(files_folder).mkdir(exist_ok=True)
+        log.info('Create folder: {0}'.format(path_local_folder))
+        pathlib.Path(path_local_folder).mkdir(exist_ok=True)
     except FileNotFoundError:
         raise ExpectedError(
             'Choose a valid directory path, please: {0}'.format(
@@ -55,51 +54,15 @@ def download(url: str, directory: str) -> str:
                 directory,
             ),
         )
-
     except OSError as error:
         raise ExpectedError('Unknown {0} error'.format(str(error)))
-    download_path = download_html(url, directory)
-    log.info('Downloading from {0} to {1}'.format(url, download_path))
-    url_for_download = replace_links(download_path, url)
+    path_html = os.path.join(directory, get_html_name(url))
+    log.info('Downloading from {0} to {1}'.format(url, path_html))
+    url_for_download, html = prepare_links(get_response(url).text, url)
+    save_html(path_html, html)
     download_local_files(url_for_download, directory)
     log.info('Done!')
-    return download_path
-
-
-def download_html(url: str, directory: str) -> str:
-    """Download html web page.
-
-    Args:
-        url: url of the web page.
-        directory: directory where to download html page.
-
-    Returns:
-        Full path of download with file_name.
-
-    Raises:
-        ExpectedError: permission or not found errors in file.
-    """
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-    except requests.exceptions.RequestException:
-        shutil.rmtree(os.path.join(directory, get_folder_name(url)))
-        raise ExpectedError(
-            'Network error when downloading {0}. Status code is {1}'.format(
-                url,
-                requests.get(url).status_code,
-            ),
-        )
-    file_name = get_html_name(url)
-    download_path_name = os.path.join(directory, file_name)
-    try:
-        with open(download_path_name, 'w') as html_file:
-            html_file.write(response.text)
-    except OSError as err:
-        raise ExpectedError(
-            'Something gone wrong:{0}, file not saved.'.format(str(err)),
-        )
-    return download_path_name
+    return path_html
 
 
 def download_local_files(urls, files_folder) -> None:
@@ -142,3 +105,48 @@ def download_local_files(urls, files_folder) -> None:
             )
         charging_bar.next()
     charging_bar.finish()
+
+
+def get_response(url: str) -> Any:
+    """Download data of web page.
+
+    Args:
+        url: url of the web page.
+
+    Returns:
+        response html file.
+
+    Raises:
+        ExpectedError: permission or not found errors in file.
+    """
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response
+    except requests.exceptions.RequestException:
+        raise ExpectedError(
+            'Network error when downloading {0}. Status code is {1}'.format(
+                url,
+                requests.get(url).status_code,
+            ),
+        )
+
+
+def save_html(path_to_html: str, data_html: Any):
+    """Save web page.
+
+    Args:
+        path_to_html: path to save html
+        data_html: text of the web page.
+
+    Raises:
+        ExpectedError: permission or not found errors in file.
+    """
+    try:
+        with open(path_to_html, 'w') as html_file:
+            log.info('Save to the {0}'.format(path_to_html))
+            html_file.write(data_html)
+    except OSError as err:
+        raise ExpectedError(
+            'Something gone wrong:{0}, file not saved.'.format(str(err)),
+        )
