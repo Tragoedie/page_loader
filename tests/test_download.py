@@ -1,7 +1,6 @@
 from page_loader.download import ExpectedError, download, download_local_files
 
-import requests_mock
-import tempfile
+
 import os
 import pathlib
 import pytest
@@ -33,12 +32,6 @@ def image_content():
 
 
 def test_download(before_replace, after_replace, image_content, requests_mock, tmpdir):
-    """Test download function: check downloaded html file.
-
-    Args:
-        requests_mock: mock for HTTP request.
-        tmp_path: temporary path for testing.
-    """
     requests_mock.get(TEST_URL, text=before_replace)
     requests_mock.get(IMG_URL, content=image_content, headers={'content-type': 'png'})
     html_file_path = download(TEST_URL, tmpdir)
