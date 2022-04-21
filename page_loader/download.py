@@ -59,7 +59,10 @@ def download(url: str, directory: str = DEFAULT_PATH) -> str:
         raise ExpectedError('Unknown {0} error'.format(str(error)))
     path_html = os.path.join(directory, get_html_name(url))
     log.info('Downloading from {0} to {1}'.format(url, path_html))
-    url_for_download, html = prepare_links(get_response(url, directory).text, url)
+    url_for_download, html = prepare_links(
+        get_response(url, directory).text,
+        url,
+    )
     save_html(path_html, html, path_local_folder)
     download_local_files(url_for_download, directory)
     log.info('Done!')
