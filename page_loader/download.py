@@ -108,11 +108,12 @@ def download_local_files(urls, files_folder) -> None:
     charging_bar.finish()
 
 
-def get_response(url: str, directory) -> Any:
+def get_response(url: str, directory: str) -> Any:
     """Download data of web page.
 
     Args:
         url: url of the web page.
+        directory: if need to delete a directory.
 
     Returns:
         response html file.
@@ -140,7 +141,7 @@ def save_html(path_to_html: str, data_html: Any, path_to_del: str) -> None:
     Args:
         path_to_html: path to save html
         data_html: text of the web page.
-        path_to_del: if need deleted folder.
+        path_to_del: if need to delete a directory.
 
     Raises:
         ExpectedError: permission or not found errors in file.

@@ -3,6 +3,7 @@ from page_loader.download import ExpectedError, download, download_local_files
 import requests_mock
 import tempfile
 import os
+import pathlib
 import pytest
 
 
@@ -26,7 +27,10 @@ def test_download():
             mock_request.get(IMG_URL, content=image_content, headers={'content-type': 'png'})
             html_file_path = download(TEST_URL, temp_dir)
             assert html_file_path == temp_dir + '/ru-hexlet-io-courses.html'
-            img_filepath = os.path.join(temp_dir, 'ru-hexlet-io-courses_files/ru-hexlet-io-assets-professions-nodejs.png')
+            img_filepath = os.path.join(
+                temp_dir,
+                'ru-hexlet-io-courses_files/ru-hexlet-io-assets-professions-nodejs.png',
+            )
             with open(img_filepath, 'rb') as img_file:
                 img_result = img_file.read()
             assert img_result == image_content
@@ -43,6 +47,7 @@ def test_download_local_files():
             mock_request.get(IMG_URL, content=image_content, headers={'content-type': 'png'})
             img_path = 'ru-hexlet-io-courses_files/ru-hexlet-io-assets-professions-nodejs.png'
             img_file_path = os.path.join(temp_dir, img_path)
+            pathlib.Path(os.path.join(temp_dir, 'ru-hexlet-io-courses_files/')).mkdir(exist_ok=True)
             url = [(IMG_URL, img_file_path)]
             download_local_files(url, temp_dir)
             with open(img_file_path, 'rb') as img_file:
@@ -63,6 +68,3 @@ def test_download_wrong_path():
         wrong_folder_path = os.path.join(temp_dir, '/wrong_folder_path')
         with pytest.raises(ExpectedError):
             download(TEST_URL, wrong_folder_path)
-
-
-
