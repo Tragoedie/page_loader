@@ -59,4 +59,4 @@ def prepare_links(html_response: Any, url: str) -> Tuple[List[tuple], Any]:
         path_for_replace = get_local_file_path(url, tag_path)
         tag[LINKS[tag.name]] = path_for_replace
         urls.append((tag_path, path_for_replace))
-    return urls, soup.prettify()
+    return urls, soup.prettify('utf-8')

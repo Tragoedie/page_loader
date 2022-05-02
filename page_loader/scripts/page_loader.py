@@ -1,9 +1,9 @@
 """Download html file with local resources."""
 import argparse
 import logging
+import shutil
 import sys
 from logging import config
-import shutil
 
 from page_loader.download import DEFAULT_PATH, ExpectedError, download
 from page_loader.logging import LOGGING_CONFIG
