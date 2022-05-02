@@ -63,7 +63,7 @@ def download(url: str, directory: str = DEFAULT_PATH) -> str:
         )
     except OSError as error:
         raise ExpectedError('Unknown {0} error'.format(str(error)))
-    save_data(path_html, html, path_local_folder)
+    save_data(path_html, html)
     download_local_files(url_for_download, directory)
     log.info('Done!')
     return path_html
@@ -83,31 +83,9 @@ def download_local_files(urls, files_folder) -> None:
     log.info('Saving to the {0}'.format(files_folder))
     log.info('Download resources...')
     for url in urls:
-        try:
-            local_file = requests.get(url[0], stream=True)
-            local_file.raise_for_status()
-        except (
-            requests.exceptions.HTTPError,
-            requests.exceptions.ConnectionError,
-            requests.exceptions.MissingSchema,
-        ) as error:
-            log.warning(error)
-            raise ExpectedError(
-                'Network error when downloading {0}. Status code is {1}'.format(
-                    url,
-                    requests.get(url).status_code,
-                ),
-            )
+        local_file = get_response(url[0])
         file_name = os.path.join(files_folder, url[1])
-#        save_data(file_name, local_file,
-        try:
-            with open(file_name, 'wb') as img_file_save:
-                for chunk in local_file.iter_content(BYTES_FOR_BLOCK):
-                    img_file_save.write(chunk)
-        except OSError as err:
-            raise ExpectedError(
-                'Something gone wrong:{0}, file not saved.'.format(str(err)),
-            )
+        save_data(file_name, local_file)
         charging_bar.next()
     charging_bar.finish()
 
@@ -125,7 +103,7 @@ def get_response(url: str) -> Any:
         ExpectedError: permission or not found errors in file.
     """
     try:
-        response = requests.get(url)
+        response = requests.get(url, stream=True)
         response.raise_for_status()
         return response
     except requests.exceptions.RequestException:
@@ -137,22 +115,20 @@ def get_response(url: str) -> Any:
         )
 
 
-def save_data(path_to_html: str, data: Any, path_to_del: str) -> None:
+def save_data(path_to_html: str, data: Any) -> None:
     """Save web page.
 
     Args:
         path_to_html: path to save html
         data: resources of web page.
-        path_to_del: if need to delete a directory.
 
     Raises:
         ExpectedError: permission or not found errors in file.
     """
     try:
-        write_mode = 'wb' if isinstance(data, bytes) else 'w'
-        with open(path_to_html, write_mode) as html_file:
+        with open(path_to_html, 'wb') as data_file:
             log.info('Save to the {0}'.format(path_to_html))
-            html_file.write(data)
+            data_file.write(data)
     except OSError as err:
         raise ExpectedError(
             'Something gone wrong:{0}, file not saved.'.format(str(err)),
