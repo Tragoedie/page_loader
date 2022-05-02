@@ -1,8 +1,24 @@
 from page_loader.download import get_response
 from page_loader.html import prepare_links
+import pytest
 from bs4 import BeautifulSoup
+from test_download import before_replace, after_replace
 
 TEST_URL = 'https://ru.hexlet.io/courses'
+
+
+@pytest.fixture()
+def before_replace():
+    with open('tests/fixtures/before.html', 'r') as before:
+        data = before.read()
+    return data
+
+
+@pytest.fixture()
+def after_replace():
+    with open('tests/fixtures/after.html', 'r') as after:
+        data = after.read()
+    return data
 
 
 def test_html(requests_mock, tmpdir, before_replace, after_replace):
