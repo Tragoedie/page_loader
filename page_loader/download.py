@@ -2,12 +2,12 @@
 import logging
 import os
 import pathlib
-import shutil
+
 from logging import config
 from typing import Any
 
 import requests
-from page_loader.get_name import get_folder_name, get_html_name
+from page_loader.names import get_folder_name, get_html_name
 from page_loader.html import prepare_links
 from page_loader.logging import LOGGING_CONFIG
 from progress.bar import ChargingBar
@@ -40,6 +40,12 @@ def download(url: str, directory: str = DEFAULT_PATH) -> str:
     """
     log.info('Start downloading!')
     path_local_folder = os.path.join(directory, get_folder_name(url))
+    path_html = os.path.join(directory, get_html_name(url))
+    log.info('Downloading from {0} to {1}'.format(url, path_html))
+    url_for_download, html = prepare_links(
+        get_response(url).text,
+        url,
+    )
     try:
         log.info('Create folder: {0}'.format(path_local_folder))
         pathlib.Path(path_local_folder).mkdir(exist_ok=True)
@@ -57,13 +63,7 @@ def download(url: str, directory: str = DEFAULT_PATH) -> str:
         )
     except OSError as error:
         raise ExpectedError('Unknown {0} error'.format(str(error)))
-    path_html = os.path.join(directory, get_html_name(url))
-    log.info('Downloading from {0} to {1}'.format(url, path_html))
-    url_for_download, html = prepare_links(
-        get_response(url, directory).text,
-        url,
-    )
-    save_html(path_html, html, path_local_folder)
+    save_data(path_html, html, path_local_folder)
     download_local_files(url_for_download, directory)
     log.info('Done!')
     return path_html
@@ -99,6 +99,7 @@ def download_local_files(urls, files_folder) -> None:
                 ),
             )
         file_name = os.path.join(files_folder, url[1])
+#        save_data(file_name, local_file,
         try:
             with open(file_name, 'wb') as img_file_save:
                 for chunk in local_file.iter_content(BYTES_FOR_BLOCK):
@@ -111,12 +112,11 @@ def download_local_files(urls, files_folder) -> None:
     charging_bar.finish()
 
 
-def get_response(url: str, directory: str) -> Any:
+def get_response(url: str) -> Any:
     """Download data of web page.
 
     Args:
         url: url of the web page.
-        directory: if need to delete a directory.
 
     Returns:
         response html file.
@@ -129,7 +129,6 @@ def get_response(url: str, directory: str) -> Any:
         response.raise_for_status()
         return response
     except requests.exceptions.RequestException:
-        shutil.rmtree(os.path.join(directory, get_folder_name(url)))
         raise ExpectedError(
             'Network error when downloading {0}. Status code is {1}'.format(
                 url,
@@ -138,23 +137,23 @@ def get_response(url: str, directory: str) -> Any:
         )
 
 
-def save_html(path_to_html: str, data_html: Any, path_to_del: str) -> None:
+def save_data(path_to_html: str, data: Any, path_to_del: str) -> None:
     """Save web page.
 
     Args:
         path_to_html: path to save html
-        data_html: text of the web page.
+        data: resources of web page.
         path_to_del: if need to delete a directory.
 
     Raises:
         ExpectedError: permission or not found errors in file.
     """
     try:
-        with open(path_to_html, 'w') as html_file:
+        write_mode = 'wb' if isinstance(data, bytes) else 'w'
+        with open(path_to_html, write_mode) as html_file:
             log.info('Save to the {0}'.format(path_to_html))
-            html_file.write(data_html)
+            html_file.write(data)
     except OSError as err:
-        shutil.rmtree(path_to_del)
         raise ExpectedError(
             'Something gone wrong:{0}, file not saved.'.format(str(err)),
         )

@@ -4,7 +4,7 @@ from typing import Any, List, Tuple
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
-from page_loader.get_name import get_local_file_path
+from page_loader.names import get_local_file_path
 
 IMG = 'img'
 SRC = 'src'

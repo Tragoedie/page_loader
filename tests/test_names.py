@@ -1,4 +1,4 @@
-from page_loader.get_name import get_folder_name, get_html_name, get_local_file_path
+from page_loader.names import get_folder_name, get_html_name, get_local_file_path
 
 TEST_URL = 'https://ru.hexlet.io/courses'
 

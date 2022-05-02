@@ -3,6 +3,7 @@ import argparse
 import logging
 import sys
 from logging import config
+import shutil
 
 from page_loader.download import DEFAULT_PATH, ExpectedError, download
 from page_loader.logging import LOGGING_CONFIG
@@ -26,6 +27,7 @@ def main() -> None:
     try:
         path = download(args.url, args.output)
     except ExpectedError as error:
+        shutil.rmtree(args.output)
         log.error(error)
         sys.exit(1)
     print(path)
