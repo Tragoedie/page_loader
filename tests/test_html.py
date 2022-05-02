@@ -2,7 +2,6 @@ from page_loader.download import get_response
 from page_loader.html import prepare_links
 import pytest
 from bs4 import BeautifulSoup
-from test_download import before_replace, after_replace
 
 TEST_URL = 'https://ru.hexlet.io/courses'
 
